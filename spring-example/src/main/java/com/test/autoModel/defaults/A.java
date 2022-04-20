@@ -14,6 +14,10 @@ public class A implements ExampleAware {
 	}
 
 
+	public A(B b){
+		log.debug("Constructor from  b");
+
+	}
 
 
 

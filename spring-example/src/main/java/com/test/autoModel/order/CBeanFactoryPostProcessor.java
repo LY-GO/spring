@@ -9,7 +9,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.lang.annotation.Annotation;
 
 @Order(7)
 @Slf4j(topic = "e")

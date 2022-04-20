@@ -312,9 +312,12 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	}
 
 	@Override
-	public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+		public PropertyValues postProcessProperties(PropertyValues pvs, Object bean, String beanName) {
+		//findResourceMetadata就是找出当前bean应当具备哪些注入器
+		//ResourceMetadata找出来bean当中有多少加了@Resource的注解
 		InjectionMetadata metadata = findResourceMetadata(beanName, bean.getClass(), pvs);
 		try {
+			//inject就是遍历injectElements得到所有的注入器
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (Throwable ex) {
@@ -506,6 +509,9 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 	 * @param requestingBeanName the name of the requesting bean
 	 * @return the resource object (never {@code null})
 	 * @throws NoSuchBeanDefinitionException if no corresponding target resource found
+	 * spring容器组件:
+	 * 					1.单例池:map->singletonObjects(90%的bean)
+	 * 				    2.BeanDefinitionMap,所有扫描出来的beanDefinition
 	 */
 	protected Object autowireResource(BeanFactory factory, LookupElement element, @Nullable String requestingBeanName)
 			throws NoSuchBeanDefinitionException {
@@ -513,18 +519,24 @@ public class CommonAnnotationBeanPostProcessor extends InitDestroyAnnotationBean
 		Object resource;
 		Set<String> autowiredBeanNames;
 		String name = element.name;
-
+		//@Resource查找bean的代码,name先根据名字去查
 		if (factory instanceof AutowireCapableBeanFactory) {
 			AutowireCapableBeanFactory beanFactory = (AutowireCapableBeanFactory) factory;
 			DependencyDescriptor descriptor = element.getDependencyDescriptor();
+			//@Resource和@Autowired的区别以及它的原理
+			//有没有自定义名字如果有再去判断改名字是否有对应的bean
+			//判断容器当中是否有名字叫做name的bean,找到else,没找到同时默认的名字也没有找到,则根据类型去找
+
 			if (this.fallbackToDefaultTypeMatch && element.isDefaultName && !factory.containsBean(name)) {
 				autowiredBeanNames = new LinkedHashSet<>();
+				//和@Autowired没有任何区别
 				resource = beanFactory.resolveDependency(descriptor, requestingBeanName, autowiredBeanNames, null);
 				if (resource == null) {
 					throw new NoSuchBeanDefinitionException(element.getLookupType(), "No resolvable resource object");
 				}
 			}
 			else {
+				//能够通过名字找到,则从spring容器中获取一个对象出来完成注入
 				resource = beanFactory.resolveBeanByName(name, descriptor);
 				autowiredBeanNames = Collections.singleton(name);
 			}

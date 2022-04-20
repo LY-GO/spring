@@ -1,10 +1,8 @@
-package com.test.autoMode;
+package com.test.autoModel;
 
-import com.test.autoModel.defaults.M;
 import com.test.autoModel.defaults.N;
 import com.test.autoModel.inject.F;
 import com.test.autoModel.inject.I;
-import com.test.autoModel.inject.K;
 import com.test.autoModel.lookup.LA;
 import com.test.autoModel.lookup.LC;
 import com.test.autoModel.order.E;
@@ -18,7 +16,6 @@ import com.test.autoModel.statics.SupplierFactory;
 import com.test.autoModel.util.ModelBeanFactoryPostProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -37,6 +34,7 @@ public class ModelTest {
 	 */
 	@Test
 	public void defaultModel(){
+		//初始化spring容器
 		AnnotationConfigApplicationContext
 				context = new AnnotationConfigApplicationContext();
 		context.register(ModelConfig.class);
@@ -103,9 +101,8 @@ public class ModelTest {
 		beanDefinition.setBeanClass(A.class);
 
 
-//
 
-		//不需要存在spring容器当中
+		//不需要存在spring容器当中,不调用静态方法
 		//SupplierFactory supplierFactory = new SupplierFactory();
 		beanDefinition.setInstanceSupplier(SupplierFactory::getObject);
 

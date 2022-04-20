@@ -72,13 +72,27 @@ class ComponentScanAnnotationParser {
 		this.registry = registry;
 	}
 
-
+	/**
+	 *parse解析配置类上面的comscan注解
+	 */
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, String declaringClass) {
+		//scanner2
+		//useDefaultFilters是否使用默认的过滤器
+		/**
+		 * 	Filters	  :
+		 * 		1. include 引入
+		 * 	    2. exclude 排除
+		 * 	   scanner.doscan
+		 * 	   1.把所谓的类都获取到
+		 * 	   2.获取到的这些类,都不能变成bd(是不是符合规则)
+		 * 	   需要进行过滤
+		 */
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
-
+		//判断是否有配置名字生成策略
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
+		//如果配置了则是李华配置的名字生成策略
 		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
 				BeanUtils.instantiateClass(generatorClass));
 
@@ -108,7 +122,7 @@ class ComponentScanAnnotationParser {
 		if (lazyInit) {
 			scanner.getBeanDefinitionDefaults().setLazyInit(true);
 		}
-
+		//获取用户配置的扫描路径
 		Set<String> basePackages = new LinkedHashSet<>();
 		String[] basePackagesArray = componentScan.getStringArray("basePackages");
 		for (String pkg : basePackagesArray) {
@@ -122,7 +136,8 @@ class ComponentScanAnnotationParser {
 		if (basePackages.isEmpty()) {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}
-
+//自己是不需要扫描的直接排除
+		//declaringClass==ScanConfig
 		scanner.addExcludeFilter(new AbstractTypeHierarchyTraversingFilter(false, false) {
 			@Override
 			protected boolean matchClassName(String className) {

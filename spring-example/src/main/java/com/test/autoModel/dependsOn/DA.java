@@ -11,7 +11,7 @@ import javax.annotation.PostConstruct;
 @Slf4j(topic = "e")
 @DependsOn("db")
 public class DA {
-
+//spring实例化顺序是根据扫描顺序决定的
 	@PostConstruct
 	public void initMehtod(){
 		log.debug("DA initMethod");

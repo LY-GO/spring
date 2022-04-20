@@ -155,6 +155,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		Assert.notNull(singletonFactory, "Singleton factory must not be null");
 		synchronized (this.singletonObjects) {
 			if (!this.singletonObjects.containsKey(beanName)) {
+				//不存在单例池中
 				this.singletonFactories.put(beanName, singletonFactory);
 				this.earlySingletonObjects.remove(beanName);
 				this.registeredSingletons.add(beanName);
@@ -179,7 +180,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		// Quick check for existing instance without full singleton lock
+		//从单例池获取
 		Object singletonObject = this.singletonObjects.get(beanName);
+		//isSingletonCurrentlyInCreation 判断X是否正在被创建
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			singletonObject = this.earlySingletonObjects.get(beanName);
 			if (singletonObject == null && allowEarlyReference) {
@@ -189,10 +192,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (singletonObject == null) {
 						singletonObject = this.earlySingletonObjects.get(beanName);
 						if (singletonObject == null) {
+							//三级缓存获取
 							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 							if (singletonFactory != null) {
+								//为什么不直接缓存半成品的bean,而是缓存一个工厂
 								singletonObject = singletonFactory.getObject();
+								//放到二级缓存,供其他地方直接调用而不用直接调用;为了不重复创建对象
 								this.earlySingletonObjects.put(beanName, singletonObject);
+								//从三级缓存清除
 								this.singletonFactories.remove(beanName);
 							}
 						}
@@ -224,6 +231,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+				//判断X是否被排除
+				//判断x是否在创建过程中 --false
+				//把X标识成为正在被创建的bean
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);

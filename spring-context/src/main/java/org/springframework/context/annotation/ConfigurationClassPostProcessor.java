@@ -103,7 +103,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 			ConfigurationClassPostProcessor.class.getName() + ".importRegistry";
 
 
-	private final Log logger = LogFactory.getLog(getClass());
+	private final Log logger = LogFactory.getLog("e");
 
 	private SourceExtractor sourceExtractor = new PassThroughSourceExtractor();
 
@@ -223,6 +223,7 @@ public class ConfigurationClassPostProcessor implements BeanDefinitionRegistryPo
 	 */
 	@Override
 	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+		logger.debug("ccpp-s n subclass postProcessBeanDefinitionRegistry");
 		int registryId = System.identityHashCode(registry);
 		if (this.registriesPostProcessed.contains(registryId)) {
 			throw new IllegalStateException(

@@ -1,6 +1,5 @@
 package com.test.autoModel.util;
 
-import com.test.autoModel.defaults.ExampleBean;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;

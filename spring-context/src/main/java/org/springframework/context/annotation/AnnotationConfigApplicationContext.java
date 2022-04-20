@@ -64,6 +64,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext() {
 		this.reader = new AnnotatedBeanDefinitionReader(this);
+		//scanner1
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 
@@ -84,8 +85,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+		//给beanFactory赋值了 DefaultListableBeanFactory对象,同时添加内置beanDefinition
 		this();
 		register(componentClasses);
+		//componentClasses注册配置类
 		refresh();
 	}
 
