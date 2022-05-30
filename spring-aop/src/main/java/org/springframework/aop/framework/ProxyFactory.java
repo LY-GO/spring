@@ -94,6 +94,7 @@ public class ProxyFactory extends ProxyCreatorSupport {
 	 * @return the proxy object
 	 */
 	public Object getProxy() {
+		//createAopProxy() jdk cglib
 		return createAopProxy().getProxy();
 	}
 

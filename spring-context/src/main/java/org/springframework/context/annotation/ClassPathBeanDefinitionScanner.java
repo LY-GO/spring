@@ -163,6 +163,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		this.registry = registry;
 //默认为true
 		if (useDefaultFilters) {
+			//.注册过滤器 过滤器主要两个功能
+			//1.引入一个bean
+			//2.排除一个bean
 			registerDefaultFilters();
 		}
 		setEnvironment(environment);
@@ -249,8 +252,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @return number of beans registered
 	 */
 	public int scan(String... basePackages) {
+		//获取所有已经存在bdMap当中的bd
 		int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
-
+//子类重写了这个方法
 		doScan(basePackages);
 
 		// Register annotation config processors, if necessary.
@@ -273,6 +277,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
 		for (String basePackage : basePackages) {
+			//通过包名扫描符合规则的bd
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
@@ -282,13 +287,16 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
+					//处理一些公共的注解 比如lazy等等
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				//判断是否注册了
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);
+					//put map
 					registerBeanDefinition(definitionHolder, this.registry);
 				}
 			}

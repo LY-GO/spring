@@ -7,7 +7,7 @@ import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.type.AnnotationMetadata;
 @Slf4j(topic = "t")
-public class TestImportBeanDefinitionRegistart implements ImportBeanDefinitionRegistrar {
+		public class TestImportBeanDefinitionRegistart implements ImportBeanDefinitionRegistrar {
 	@Override
 	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry, BeanNameGenerator importBeanNameGenerator) {
 		//log.debug("---TestImportBeanDefinitionRegistart");

@@ -4,3 +4,4 @@ public interface IAware {
 
 	public void setK(K k);
 }
+0

@@ -155,7 +155,7 @@ final class PostProcessorRegistrationDelegate {
 			}
 
 			// Now, invoke the postProcessBeanFactory callback of all processors handled so far.
-			//执行实现了子类的父类方法
+			//执行实现了子类的父类方法;@Configuration完成cglib代理
 			invokeBeanFactoryPostProcessors(registryProcessors, beanFactory);
 			//执行通过api提供的直接实现了父类的---方法
 			invokeBeanFactoryPostProcessors(regularPostProcessors, beanFactory);
@@ -218,15 +218,16 @@ final class PostProcessorRegistrationDelegate {
 		// modified the original metadata, e.g. replacing placeholders in values...
 		beanFactory.clearMetadataCache();
 	}
-
+//查找然后注册BeanPostProcessor
 	public static void registerBeanPostProcessors(
 			ConfigurableListableBeanFactory beanFactory, AbstractApplicationContext applicationContext) {
-
+		//从bdmp中获取所有的BeanPostProcessor
 		String[] postProcessorNames = beanFactory.getBeanNamesForType(BeanPostProcessor.class, true, false);
 
 		// Register BeanPostProcessorChecker that logs an info message when
 		// a bean is created during BeanPostProcessor instantiation, i.e. when
 		// a bean is not eligible for getting processed by all BeanPostProcessors.
+		//beanProcessorTargetCount spring期望一个bean应该执行几个beanProcessor的个数
 		int beanProcessorTargetCount = beanFactory.getBeanPostProcessorCount() + 1 + postProcessorNames.length;
 		beanFactory.addBeanPostProcessor(new BeanPostProcessorChecker(beanFactory, beanProcessorTargetCount));
 
@@ -238,6 +239,8 @@ final class PostProcessorRegistrationDelegate {
 		List<String> nonOrderedPostProcessorNames = new ArrayList<>();
 		for (String ppName : postProcessorNames) {
 			if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+				//完成实例化BeanPostProcessor,并不会调用check校验
+				//[CommonAnnotationBeanPostProcessor,AutowiredAnnotationBeanPostProcessor]
 				BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
 				priorityOrderedPostProcessors.add(pp);
 				if (pp instanceof MergedBeanDefinitionPostProcessor) {
@@ -252,11 +255,14 @@ final class PostProcessorRegistrationDelegate {
 
 		// First, register the BeanPostProcessors that implement PriorityOrdered.
 		sortPostProcessors(priorityOrderedPostProcessors, beanFactory);
+		//注册beanPostProcessor对象到 List<BeanPostProcessor> postProcessors
 		registerBeanPostProcessors(beanFactory, priorityOrderedPostProcessors);
 
 		// Next, register the BeanPostProcessors that implement Ordered.
 		List<BeanPostProcessor> orderedPostProcessors = new ArrayList<>(orderedPostProcessorNames.size());
 		for (String ppName : orderedPostProcessorNames) {
+			//通过名字调用getBean方法--->实例化AnnotationAwareAspectAutoProxyCrator
+			//? 为什么一开始不直接实例化beanPostProcessor
 			BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
 			orderedPostProcessors.add(pp);
 			if (pp instanceof MergedBeanDefinitionPostProcessor) {
@@ -269,6 +275,9 @@ final class PostProcessorRegistrationDelegate {
 		// Now, register all regular BeanPostProcessors.
 		List<BeanPostProcessor> nonOrderedPostProcessors = new ArrayList<>(nonOrderedPostProcessorNames.size());
 		for (String ppName : nonOrderedPostProcessorNames) {
+			//实例化TestPostProcessorNormal 会走bean的生命周期  属性填充,注入service
+			//可以注入成功 因为beanPostProcessorService能够被扫描到 被容器实例化并且返回给注入的逻辑
+			//beanPostProcessorService 走生命周期--执行后置处理器会被BeanPostProcessorChecker校验 预期是8,实际是7,因为第八个normal还没有执行完
 			BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
 			nonOrderedPostProcessors.add(pp);
 			if (pp instanceof MergedBeanDefinitionPostProcessor) {

@@ -21,11 +21,11 @@ public class ScanTest {
 	public void defaultScan(){
 
 		AnnotationConfigApplicationContext applicationContext = new
-				AnnotationConfigApplicationContext();
-		applicationContext.register(ScanConfig.class);
-		//开发出来了  那就要用？
-		applicationContext.setBeanNameGenerator(new MyBeanNameGenerator());
-		applicationContext.refresh();
+				AnnotationConfigApplicationContext(ScanConfig.class);
+//		applicationContext.register(ScanConfig.class);
+//		//开发出来了  那就要用？
+//		applicationContext.setBeanNameGenerator(new MyBeanNameGenerator());
+//		applicationContext.refresh();
 
 
 
@@ -35,10 +35,10 @@ public class ScanTest {
 		//invokeBeanFactoryPostProcessors --->执行ConfigurationClassPostProcessor#postProcessBeanDefinitionRegistry
 		//完成了扫描
 		//applicationContext.refresh();
-		String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
-		for (String beanDefinitionName : beanDefinitionNames) {
-			System.out.println(beanDefinitionName);
-		}
+//		String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+//		for (String beanDefinitionName : beanDefinitionNames) {
+//			System.out.println(beanDefinitionName);
+//		}
 		//applicationContext.setBeanNameGenerator();
 //		applicationContext.addBeanFactoryPostProcessor(new ScanBeanDefinitionRegistyPostProcessor());
 //		applicationContext.refresh();

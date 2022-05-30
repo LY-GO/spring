@@ -74,6 +74,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext(DefaultListableBeanFactory beanFactory) {
 		super(beanFactory);
+		//注册内置的BeanDefinition=>beanPostProcessor
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
@@ -129,7 +130,9 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public void setBeanNameGenerator(BeanNameGenerator beanNameGenerator) {
 		this.reader.setBeanNameGenerator(beanNameGenerator);
+		//scanner1 会用你通过容器对象设置的名字生成器
 		this.scanner.setBeanNameGenerator(beanNameGenerator);
+		//如果你手动set一个BeanNameGenerator,会把这个对象放到单例池中
 		getBeanFactory().registerSingleton(
 				AnnotationConfigUtils.CONFIGURATION_BEAN_NAME_GENERATOR, beanNameGenerator);
 	}

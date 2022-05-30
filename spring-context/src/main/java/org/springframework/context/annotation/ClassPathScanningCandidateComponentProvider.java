@@ -427,12 +427,13 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 					logger.trace("Scanning " + resource);
 				}
 				try {
-					//class==metadataReader
+					//class==metadataReader,asm加载类信息,可以理解为就是类信息
 					MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
 					//判断是否被排除,是否加了必要的注解
 					if (isCandidateComponent(metadataReader)) {
 						ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 						sbd.setSource(resource);
+						//As是否是抽象类,接口
 						if (isCandidateComponent(sbd)) {
 							if (debugEnabled) {
 								logger.debug("Identified candidate component class: " + resource);
@@ -495,6 +496,12 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 			}
 		}
 		for (TypeFilter tf : this.includeFilters) {
+			//1-tf=new annotationTypeFilter(Component.class)
+			//1-tf match#matchSelf会执行子类的matchSelf方法 是否加了@Component.class
+
+			//2-tf=new AnnotationTypeFilter(Component.class)
+			//1-tf.match#matchSelf会执行子类的matchSelf方法 是否加了ManagedBean
+			//4-tf.match#matchSelf会执行父类的返回false 继续执行 matchClassName
 			if (tf.match(metadataReader, getMetadataReaderFactory())) {
 				return isConditionMatch(metadataReader);
 			}

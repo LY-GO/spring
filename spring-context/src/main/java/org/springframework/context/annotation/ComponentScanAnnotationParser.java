@@ -73,7 +73,7 @@ class ComponentScanAnnotationParser {
 	}
 
 	/**
-	 *parse解析配置类上面的comscan注解
+	 *parse解析配置类上面的@componentscan注解
 	 */
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, String declaringClass) {
 		//scanner2
@@ -84,15 +84,18 @@ class ComponentScanAnnotationParser {
 		 * 	    2. exclude 排除
 		 * 	   scanner.doscan
 		 * 	   1.把所谓的类都获取到
-		 * 	   2.获取到的这些类,都不能变成bd(是不是符合规则)
-		 * 	   需要进行过滤
+		 * 	   2.获取到的这些类,能不能变成bd(是不是符合规则)
+		 * 	   被include过滤到
+		 *
+		 * 	   useDefaultFilters 是否使用默认过滤器
 		 */
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 		//判断是否有配置名字生成策略
 		Class<? extends BeanNameGenerator> generatorClass = componentScan.getClass("nameGenerator");
+		//默认为t
 		boolean useInheritedGenerator = (BeanNameGenerator.class == generatorClass);
-		//如果配置了则是李华配置的名字生成策略
+		//如果配置了则是自己配置的名字生成策略
 		scanner.setBeanNameGenerator(useInheritedGenerator ? this.beanNameGenerator :
 				BeanUtils.instantiateClass(generatorClass));
 
@@ -106,7 +109,7 @@ class ComponentScanAnnotationParser {
 		}
 
 		scanner.setResourcePattern(componentScan.getString("resourcePattern"));
-
+		//配置的includeFilters
 		for (AnnotationAttributes filter : componentScan.getAnnotationArray("includeFilters")) {
 			for (TypeFilter typeFilter : typeFiltersFor(filter)) {
 				scanner.addIncludeFilter(typeFilter);
@@ -136,14 +139,15 @@ class ComponentScanAnnotationParser {
 		if (basePackages.isEmpty()) {
 			basePackages.add(ClassUtils.getPackageName(declaringClass));
 		}
-//自己是不需要扫描的直接排除
-		//declaringClass==ScanConfig
+		//自己是不需要扫描的直接排除
+		//declaringClass==ScanConfig,添加排除过滤器排除当前配置类,scanConfig,因为scanConfig在容器启动的时候通过register注册到bdmap了
 		scanner.addExcludeFilter(new AbstractTypeHierarchyTraversingFilter(false, false) {
 			@Override
 			protected boolean matchClassName(String className) {
 				return declaringClass.equals(className);
 			}
 		});
+		//开始扫描
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 
